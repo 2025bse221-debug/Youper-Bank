@@ -6,7 +6,9 @@ import com.bank.accounts.model.AccountRepository;
 import com.bank.accounts.model.User;
 import com.bank.accounts.security.CurrentUserService;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
@@ -45,6 +47,28 @@ public class AccountService {
 
     public void deleteById(Integer accountId, Integer userId) {
         accountRepository.deleteById(new AccountId(accountId, userId));
+
+        
     }
+    @Transactional
+public Account getAccountForUpdate(Integer accountId, Integer userId) {
+
+    return accountRepository.findAccountForUpdate(accountId, userId)
+            .orElseThrow(() -> new RuntimeException("Account not found"));
+}
+    @Transactional
+public Account updateBalance(
+        Integer accountId,
+        Integer userId,
+        BigDecimal newBalance) {
+
+    Account account = accountRepository
+            .findAccountForUpdate(accountId, userId)
+            .orElseThrow(() -> new RuntimeException("Account not found"));
+
+    account.setBalance(newBalance);
+
+    return accountRepository.save(account);
+}
 
 }
